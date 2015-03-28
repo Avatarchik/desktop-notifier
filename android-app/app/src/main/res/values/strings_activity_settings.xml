@@ -1,0 +1,14 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_enable_notifications">Enable notifications</string>
+    <string name="pref_description_enable_notifications">Notifications are transmitted
+        to desktop client when enabled
+    </string>
+
+    <string name="pref_title_desktop_address">Desktop MAC address</string>
+    <string name="pref_description_desktop_name">Enter your desktop\&apos;s MAC address
+        in the format AB:CD:EF:GH:IJ:KL
+    </string>
+</resources>
