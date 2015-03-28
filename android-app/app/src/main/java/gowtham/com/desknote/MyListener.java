@@ -39,14 +39,14 @@ public class MyListener extends NotificationListenerService {
 
         Log.e(MainActivity.TAG, "Got a new notification " + title + " " + mNotification.hashCode());
 
-        Message msg = new Message( title, text, subText );
+        Message msg = new Message( title, text, subText, mNotification.toString(), extras.toString() );
 
         NotificationTransmitter tx = new NotificationTransmitter();
         try {
             Log.e(MainActivity.TAG, "Sending bluetooth message");
             tx.transmit(address, msg);
         } catch (IOException ioe) {
-            Log.e(MainActivity.TAG, "Cannot transmit notification", e);
+            Log.e(MainActivity.TAG, "Cannot transmit notification", ioe);
         }
     }
 

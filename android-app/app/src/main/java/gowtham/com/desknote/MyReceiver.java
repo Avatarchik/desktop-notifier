@@ -29,7 +29,7 @@ public class MyReceiver extends BroadcastReceiver {
                     extras.getCharSequence(Notification.EXTRA_TEXT);
             CharSequence notificationSubText =
                     extras.getCharSequence(Notification.EXTRA_SUB_TEXT);
-            Message msg = new Message(notificationTitle, notificationText, notificationSubText);
+            Message msg = new Message(notificationTitle, notificationText, notificationSubText, "", "");
             NotificationTransmitter tx = new NotificationTransmitter();
             try {
                 Log.e(MainActivity.TAG, "Sending bluetooth message");
