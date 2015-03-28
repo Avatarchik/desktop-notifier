@@ -3,14 +3,23 @@ var uuid = '1105';
 
 function ab2str(buf) {
   return String.fromCharCode.apply(null, new Uint8Array(buf));
+  //return decodeURIComponent(escape(String.fromCharCode.apply(null, buf)));
 }
+
 function str2ab(str) {
-  var buf = new ArrayBuffer(str.length); // 2 bytes for each char
-  var bufView = new Uint8Array(buf);
-  for (var i=0, strLen=str.length; i<strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  return buf;
+    var buf = new ArrayBuffer(str.length); // 2 bytes for each char
+    var bufView = new Uint8Array(buf);
+    for (var i=0, strLen=str.length; i<strLen; i++) {
+		bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+  
+    // var strUtf8 = unescape(encodeURIComponent(str));
+	// var ab = new Uint8Array(strUtf8.length);
+    // for (var i = 0; i < strUtf8.length; i++) {
+        // ab[i] = strUtf8.charCodeAt(i);
+    // }
+    // return ab;
 }
 
 chrome.app.runtime.onLaunched.addListener(function() {
@@ -42,14 +51,15 @@ chrome.app.runtime.onLaunched.addListener(function() {
 	chrome.bluetoothSocket.onReceive.addListener(function(receiveInfo) {
 		console.log("Received " + JSON.stringify(receiveInfo));
 		var json = ab2str(receiveInfo.data);
+		console.log("Message: " + json);
 		var obj = JSON.parse(json);
-		notifyMe(obj.text, obj.title);
+		notifyMe(obj);
 		console.log("Closing client " + receiveInfo.socketId);
 	  
 		chrome.bluetoothSocket.close(receiveInfo.socketId);
 	});
 
-	function notifyMe(message, title) {
+	function notifyMe(obj) {
 		if (Notification.permission !== "granted")
 			Notification.requestPermission();
 
@@ -58,8 +68,8 @@ chrome.app.runtime.onLaunched.addListener(function() {
 		chrome.notifications.create(notificationId, {
 			iconUrl: 'logo128.png',
 			type: "basic",
-			message: message,
-			title: title
+			message: obj.text || "unknown message",
+			title: obj.title || "unknown title"
 		}, function() {
 			setTimeout(function(){
 				chrome.notifications.clear(notificationId, function() {})
