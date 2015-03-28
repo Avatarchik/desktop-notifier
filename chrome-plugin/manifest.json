@@ -1,0 +1,19 @@
+{
+	"name": "Desktop Notifier",
+	"description": "Pushes mobile notifications to desktop using bluetooth",
+	"version": "0.1",
+	"manifest_version": 2,
+	"app": {
+		"background": {
+			"scripts": ["background.js"]
+		}
+	},
+	"permissions" : [
+		"notifications"
+	],
+	"icons": { "16": "logo16.png", "128": "logo128.png" },
+	"bluetooth": {
+		"uuids": [ "1105" ],
+		"socket": true
+	}
+}
