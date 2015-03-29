@@ -22,14 +22,26 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.util.Base64;
+import android.util.Base64OutputStream;
 import android.util.Log;
 import android.support.v4.content.LocalBroadcastManager;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class MyListener extends NotificationListenerService {
 
@@ -52,13 +64,23 @@ public class MyListener extends NotificationListenerService {
 
         Bundle extras = mNotification.extras;
 
+        String packageName = sbn.getPackageName();
         String title = extras.getString(Notification.EXTRA_TITLE);
         String text = extras.getString(Notification.EXTRA_TEXT);
         String subText = extras.getString(Notification.EXTRA_SUB_TEXT);
+        Integer smallIconID = extras.getInt(Notification.EXTRA_SMALL_ICON);
+        String icon = "null";
+        if(extras.getParcelable(Notification.EXTRA_LARGE_ICON) != null) {
+            Bitmap b = Bitmap.class.cast(extras.getParcelable(Notification.EXTRA_LARGE_ICON));
+            icon = bitmap2Base64(b);
+        }
+
+        String smallIcon = getIcon(packageName, smallIconID);
+
 
         Log.e(MainActivity.TAG, "Got a new notification " + title + " " + mNotification.hashCode());
 
-        Message msg = new Message( title, text, subText, mNotification.toString(), extras.toString() );
+        Message msg = new Message( title, text, subText, icon, mNotification.toString(), extras.toString() );
 
         NotificationTransmitter tx = new NotificationTransmitter();
         try {
@@ -67,6 +89,49 @@ public class MyListener extends NotificationListenerService {
         } catch (IOException ioe) {
             Log.e(MainActivity.TAG, "Cannot transmit notification", ioe);
         }
+    }
+
+    private String getIcon(String packageName, Integer id) {
+        String icon = "null";
+        if(id != 0) {
+            Context context = null;
+            try {
+                context = createPackageContext(packageName, CONTEXT_IGNORE_SECURITY);
+                Drawable d = context.getResources().getDrawable(id);
+                Bitmap b = BitmapDrawable.class.cast(d).getBitmap();
+                icon = bitmap2Base64(b);
+            } catch (PackageManager.NameNotFoundException e) {
+                // Ignore
+            }
+        }
+
+        return icon;
+    }
+
+    private String bitmap2Base64(Bitmap b) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        //Bitmap gray = toGrayscale(b);
+        // Bitmap smaller = b.createScaledBitmap(b, 10, 10, false);
+        b.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+        byte[] buf = baos.toByteArray();
+        return new String(Base64.encode(buf, Base64.NO_WRAP));
+    }
+
+    public Bitmap toGrayscale(Bitmap bmpOriginal)
+    {
+        int width, height;
+        height = bmpOriginal.getHeight();
+        width = bmpOriginal.getWidth();
+
+        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmpGrayscale);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        paint.setColorFilter(f);
+        c.drawBitmap(bmpOriginal, 0, 0, paint);
+        return bmpGrayscale;
     }
 
     @Override

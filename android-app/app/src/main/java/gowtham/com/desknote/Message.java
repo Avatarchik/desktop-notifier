@@ -35,14 +35,16 @@ public class Message {
     public CharSequence title;
     public CharSequence text;
     public CharSequence details;
+    public CharSequence icon;
     public CharSequence raw;
     public CharSequence extra;
 
-    public Message(CharSequence title, CharSequence text, CharSequence details, CharSequence raw,
-                   CharSequence extra) {
+    public Message(CharSequence title, CharSequence text, CharSequence details, CharSequence icon,
+                   CharSequence raw,   CharSequence extra) {
         this.title = title;
         this.text = text;
         this.details = details;
+        this.icon = icon;
         this.raw = raw;
         this.extra = extra;
     }
@@ -53,6 +55,7 @@ public class Message {
             json.put("title", String.valueOf(title));
             json.put("text", String.valueOf(text));
             json.put("details", String.valueOf(details));
+            json.put("icon", String.valueOf(icon));
             json.put("raw", String.valueOf(raw));
             json.put("extra", String.valueOf(extra));
         } catch (JSONException je) {

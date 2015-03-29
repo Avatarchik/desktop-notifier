@@ -19,8 +19,14 @@
 */
 package gowtham.com.desknote;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by Gowtham on 28-Mar-15.
@@ -32,6 +38,27 @@ public class SettingsFragment extends PreferenceFragment {
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.prefs);
+
+        ListPreference list = ListPreference.class.cast(findPreference("desktop_address"));
+
+        Map<String,String> map = getAllBluetoothDeviceNames();
+        list.setEntries(map.values().toArray(new CharSequence[map.size()]));
+        list.setEntryValues(map.keySet().toArray(new CharSequence[map.size()]));
     }
 
+    private Map<String,String> getAllBluetoothDeviceNames() {
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        Map<String,String> macToNameMap = new LinkedHashMap<String, String>();
+
+        if(adapter.isEnabled()) {
+            adapter.cancelDiscovery();
+            for(BluetoothDevice device : adapter.getBondedDevices()) {
+                macToNameMap.put(device.getAddress(), device.getName());
+            }
+        } else {
+            macToNameMap.put("0", "Bluetooth is off");
+        }
+
+        return macToNameMap;
+    }
 }

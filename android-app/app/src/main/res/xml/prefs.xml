@@ -6,13 +6,12 @@
         android:summary="@string/pref_description_enable_notifications"
         android:defaultValue="true" />
 
-    <EditTextPreference
+    <ListPreference
         android:key="desktop_address"
         android:title="@string/pref_title_desktop_address"
-        android:summary="@string/pref_description_desktop_name"
-        android:selectAllOnFocus="true"
-        android:inputType="textCapCharacters"
-        android:singleLine="true"
-        android:maxLines="1" />
+        android:dialogTitle="@string/pref_title_desktop_address"
+        android:summary="@string/pref_description_desktop_name" />
+
+
 
 </PreferenceScreen>

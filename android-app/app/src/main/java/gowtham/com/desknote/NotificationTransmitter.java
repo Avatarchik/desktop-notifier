@@ -35,6 +35,7 @@ import java.util.UUID;
  */
 public class NotificationTransmitter {
 
+    private static final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
     private BluetoothDevice device;
     private BluetoothSocket socket;
@@ -47,14 +48,18 @@ public class NotificationTransmitter {
 
 
         device = adapter.getRemoteDevice(address.toUpperCase());
-        if( device == null )
+        if( device == null ) {
+            Log.e(MainActivity.TAG, "Device " + address + " not found");
             return;
+        }
+
 
         // Create a socket
-        socket = createRfcommSocket(device);
+        socket = createRfcommSocket(device); // device.createRfcommSocketToServiceRecord(uuid);
 
+        adapter.cancelDiscovery();
         socket.connect();
-        CharSequence json = message.toJSON();
+        CharSequence json = message.toJSON() + ":END_OF_MESSAGE:";
         socket.getOutputStream().write(json.toString().getBytes());
         socket.getOutputStream().flush();
         socket.close();

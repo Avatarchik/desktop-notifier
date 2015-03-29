@@ -7,8 +7,6 @@
         to desktop client when enabled
     </string>
 
-    <string name="pref_title_desktop_address">Desktop MAC address</string>
-    <string name="pref_description_desktop_name">Enter your desktop\&apos;s MAC address
-        in the format AB:CD:EF:GH:IJ:KL
-    </string>
+    <string name="pref_title_desktop_address">Desktop name</string>
+    <string name="pref_description_desktop_name">Select your desktop name</string>
 </resources>
