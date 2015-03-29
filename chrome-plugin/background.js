@@ -1,5 +1,7 @@
 var socketId;
 var uuid = '1105';
+var message_table = {};
+var END_OF_MESSAGE = ":END_OF_MESSAGE:";
 
 function ab2str(buf) {
   return String.fromCharCode.apply(null, new Uint8Array(buf));
@@ -39,6 +41,8 @@ chrome.app.runtime.onLaunched.addListener(function() {
 		if( acceptInfo.socketId != socketId )
 			return;
   
+		message_table[acceptInfo.clientSocketId] = "";
+		
 		//console.log("Sending hello");
 		//chrome.bluetoothSocket.send(acceptInfo.clientSocketId, str2ab("From chrome\n\n"), function(){});
 
@@ -52,11 +56,20 @@ chrome.app.runtime.onLaunched.addListener(function() {
 		console.log("Received " + JSON.stringify(receiveInfo));
 		var json = ab2str(receiveInfo.data);
 		console.log("Message: " + json);
-		var obj = JSON.parse(json);
-		notifyMe(obj);
-		console.log("Closing client " + receiveInfo.socketId);
-	  
-		chrome.bluetoothSocket.close(receiveInfo.socketId);
+		
+		message_table[receiveInfo.socketId] += json;
+		
+		var full_message = message_table[receiveInfo.socketId];
+		if( full_message.match(END_OF_MESSAGE) ) {
+			console.log("Before " + full_message);
+			full_message = full_message.replace(END_OF_MESSAGE, "");
+			console.log("After " + full_message);
+			var obj = JSON.parse(full_message);
+			notifyMe(obj);
+			console.log("Closing client " + receiveInfo.socketId);
+			chrome.bluetoothSocket.close(receiveInfo.socketId);
+			delete message_table[receiveInfo.socketId];
+		}
 	});
 
 	function notifyMe(obj) {
@@ -66,7 +79,7 @@ chrome.app.runtime.onLaunched.addListener(function() {
 		var date = new Date()
 		var notificationId = " at " + date.toTimeString() + " " + date.getMilliseconds()
 		chrome.notifications.create(notificationId, {
-			iconUrl: 'logo128.png',
+			iconUrl: decodeImage(obj.icon),
 			type: "basic",
 			message: obj.text || "unknown message",
 			title: obj.title || "unknown title"
@@ -77,3 +90,10 @@ chrome.app.runtime.onLaunched.addListener(function() {
 		});
 	}
 });
+
+function decodeImage(base64) {
+	if(base64 != "null" ) {
+		return "data:image/png;base64," + base64;
+	}
+	return 'logo128.png';
+}
