@@ -24,7 +24,7 @@ function str2ab(str) {
     // return ab;
 }
 
-chrome.app.runtime.onLaunched.addListener(function() {
+//chrome.app.runtime.onLaunched.addListener(function() {
 	chrome.bluetooth.getAdapterState(function(adapter) {
 		console.log("Adapter " + adapter.address + ": " + adapter.name);
 	});
@@ -61,14 +61,15 @@ chrome.app.runtime.onLaunched.addListener(function() {
 		
 		var full_message = message_table[receiveInfo.socketId];
 		if( full_message.match(END_OF_MESSAGE) ) {
-			console.log("Before " + full_message);
+			//console.log("Before " + full_message);
 			full_message = full_message.replace(END_OF_MESSAGE, "");
-			console.log("After " + full_message);
+			//console.log("After " + full_message);
 			var obj = JSON.parse(full_message);
 			notifyMe(obj);
 			console.log("Closing client " + receiveInfo.socketId);
 			chrome.bluetoothSocket.close(receiveInfo.socketId);
 			delete message_table[receiveInfo.socketId];
+			console.log(Object.keys(message_table));
 		}
 	});
 
@@ -89,7 +90,7 @@ chrome.app.runtime.onLaunched.addListener(function() {
 			}, 12000);  
 		});
 	}
-});
+//});
 
 function decodeImage(base64) {
 	if(base64 != "null" ) {
