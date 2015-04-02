@@ -28,3 +28,4 @@ proguard/
 android-app/app/manifest-merger-release-report.txt
 chrome-plugin.crx
 chrome-plugin.pem
+windows-app/desktop-notifier/obj
