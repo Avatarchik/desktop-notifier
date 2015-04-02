@@ -53,9 +53,9 @@ function str2ab(str) {
     // Accepted sockets are initially paused,
 	// set the onReceive listener first.
 	chrome.bluetoothSocket.onReceive.addListener(function(receiveInfo) {
-		console.log("Received " + JSON.stringify(receiveInfo));
+		//console.log("Received " + JSON.stringify(receiveInfo));
 		var json = ab2str(receiveInfo.data);
-		console.log("Message: " + json);
+		//console.log("Message: " + json);
 		
 		message_table[receiveInfo.socketId] += json;
 		
@@ -66,7 +66,7 @@ function str2ab(str) {
 			//console.log("After " + full_message);
 			var obj = JSON.parse(full_message);
 			notifyMe(obj);
-			console.log("Closing client " + receiveInfo.socketId);
+			//console.log("Closing client " + receiveInfo.socketId);
 			chrome.bluetoothSocket.close(receiveInfo.socketId);
 			delete message_table[receiveInfo.socketId];
 			console.log(Object.keys(message_table));
@@ -77,6 +77,7 @@ function str2ab(str) {
 		if (Notification.permission !== "granted")
 			Notification.requestPermission();
 
+		
 		var date = new Date()
 		var notificationId = " at " + date.toTimeString() + " " + date.getMilliseconds()
 		chrome.notifications.create(notificationId, {
@@ -98,3 +99,9 @@ function decodeImage(base64) {
 	}
 	return 'logo128.png';
 }
+
+function keep_alive() {
+	setTimeout(keep_alive, 5000);
+}
+
+keep_alive();
