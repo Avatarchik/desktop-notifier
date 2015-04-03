@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace desktop_notifier
 {
@@ -13,11 +14,12 @@ namespace desktop_notifier
     {
         public delegate void MessageReceivedEvent(Message message);
         private BluetoothComm comm = new BluetoothComm();
+        private Thread listeningThread;
 
         public DesktopNotifier()
         {
             InitializeComponent();
-            //checkBoxEnableNotifications.Checked = true;
+            SetCheckBoxSilent(checkBoxEnableNotifications,true);
         }
 
         private void DesktopNotifier_Load(object sender, EventArgs e)
@@ -27,10 +29,18 @@ namespace desktop_notifier
 
         private void Start()
         {
-            System.Threading.ThreadPool.QueueUserWorkItem(delegate
+            //System.Threading.ThreadPool.QueueUserWorkItem(delegate
+            //{
+            //    StartInternal();
+            //}, null);
+
+            if (listeningThread == null)
             {
-                StartInternal();
-            }, null);
+                listeningThread = new Thread(StartInternal);
+                listeningThread.SetApartmentState(ApartmentState.STA);
+            }
+            
+            listeningThread.Start();
         }
 
         private void StartInternal()
@@ -41,9 +51,13 @@ namespace desktop_notifier
 
         public void MessageReceived(Message message)
         {
-            Console.WriteLine("Message shown: {0} : {1}", message.Title, message.Text);
-            // TODO: Display image also
-            notifyIcon.ShowBalloonTip(5000, message.Title, message.Text, ToolTipIcon.Info);
+            GetDesktopNotifierInterface().ShowNotification(message);
+        }
+
+        private DesktopNotifierInterface GetDesktopNotifierInterface()
+        {
+            //return new FancyDesktopNotifier(Icon);
+            return new WindowsDefaultNotifier(notifyIcon);
         }
 
         private void DesktopNotifier_FormClosed(object sender, FormClosedEventArgs e)
@@ -65,7 +79,36 @@ namespace desktop_notifier
 
         private void Stop()
         {
+            if (listeningThread == null) { return; }
             comm.Stop();
+            listeningThread.Abort();
+            listeningThread = null;
+        }
+
+        private void notifyIcon_BalloonTipClosed(object sender, EventArgs e)
+        {
+            notifyIcon.Icon = Icon;
+        }
+
+        private void DesktopNotifier_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
+        }
+
+        private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (Visible)
+                Hide();
+            else
+                Show();
+        }
+
+        private void SetCheckBoxSilent(CheckBox checkbox, Boolean value)
+        {
+            checkbox.CheckedChanged -= checkBoxEnableNotifications_CheckedChanged;
+            checkbox.Checked = value;
+            checkbox.CheckedChanged += checkBoxEnableNotifications_CheckedChanged;
         }
     }
 }

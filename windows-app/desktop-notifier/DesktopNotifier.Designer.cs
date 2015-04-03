@@ -42,6 +42,8 @@
             this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
             this.notifyIcon.Text = "Desktop Notifier";
             this.notifyIcon.Visible = true;
+            this.notifyIcon.BalloonTipClosed += new System.EventHandler(this.notifyIcon_BalloonTipClosed);
+            this.notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseDoubleClick);
             // 
             // checkBoxEnableNotifications
             // 
@@ -77,15 +79,19 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(368, 253);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.trackBarDisplayInterval);
             this.Controls.Add(this.checkBoxEnableNotifications);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "DesktopNotifier";
             this.Text = "Desktop Notifier";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DesktopNotifier_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.DesktopNotifier_FormClosed);
             this.Load += new System.EventHandler(this.DesktopNotifier_Load);
             ((System.ComponentModel.ISupportInitialize)(this.trackBarDisplayInterval)).EndInit();

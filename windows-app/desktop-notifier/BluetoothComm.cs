@@ -43,9 +43,11 @@ namespace desktop_notifier
             {
                 if (listener.Pending())
                 {
+                    Console.WriteLine("Got a new client");
                     BluetoothClient client = listener.AcceptBluetoothClient();
+                    
                     string message = ReadMessage(client.GetStream());
-                    //Console.WriteLine(message);
+                    Console.WriteLine("Message: " + message);
 
                     SendMessage(message);
                 }
