@@ -55,7 +55,8 @@ public class NotificationTransmitter {
 
 
         // Create a socket
-        socket = createRfcommSocket(device); // device.createRfcommSocketToServiceRecord(uuid);
+        // socket = createRfcommSocket(device); // device.createRfcommSocketToServiceRecord(uuid);
+        socket = device.createRfcommSocketToServiceRecord(uuid);
 
         adapter.cancelDiscovery();
         socket.connect();
