@@ -28,6 +28,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.UUID;
 
 /**
@@ -40,19 +41,28 @@ public class NotificationTransmitter {
     private BluetoothDevice device;
     private BluetoothSocket socket;
 
-    public void transmit(String address, Message message) throws IOException {
+    public void transmit(Collection<String> addresses, Message message) {
         // If bluetooth was disabled, do nothing
         if( ! adapter.isEnabled() ) {
             return;
         }
 
+        for(String address : addresses) {
+            try {
+                transmit(address, message);
+            } catch (IOException e) {
+                // Ignore
+                Log.e(MainActivity.TAG, e.getMessage());
+            }
+        }
+    }
 
+    private void transmit(String address, Message message) throws IOException {
         device = adapter.getRemoteDevice(address.toUpperCase());
         if( device == null ) {
             Log.e(MainActivity.TAG, "Device " + address + " not found");
             return;
         }
-
 
         // Create a socket
         // socket = createRfcommSocket(device); // device.createRfcommSocketToServiceRecord(uuid);

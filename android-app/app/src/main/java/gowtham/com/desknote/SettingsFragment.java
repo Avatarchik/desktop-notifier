@@ -23,6 +23,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.preference.ListPreference;
+import android.preference.MultiSelectListPreference;
 import android.preference.PreferenceFragment;
 
 import java.util.LinkedHashMap;
@@ -39,7 +40,7 @@ public class SettingsFragment extends PreferenceFragment {
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.prefs);
 
-        ListPreference list = ListPreference.class.cast(findPreference("desktop_address"));
+        MultiSelectListPreference list = MultiSelectListPreference.class.cast(findPreference("desktop_address"));
 
         Map<String,String> map = getAllBluetoothDeviceNames();
         list.setEntries(map.values().toArray(new CharSequence[map.size()]));

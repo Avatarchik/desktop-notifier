@@ -14,6 +14,8 @@
     <string name="pref_description_include_images">Including images in notifications will
         increase communication latency</string>
 
+    <string-array name="empty_array"/>
+
 
 
 

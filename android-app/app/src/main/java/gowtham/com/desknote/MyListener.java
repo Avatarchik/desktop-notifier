@@ -42,6 +42,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MyListener extends NotificationListenerService {
 
@@ -60,7 +64,8 @@ public class MyListener extends NotificationListenerService {
             return;
 
         // Look for our device
-        String address = pref.getString("desktop_address", "");
+        Set<String> emptySet = new HashSet<String>();
+        Collection<String> address = pref.getStringSet("desktop_address", emptySet);
 
         Bundle extras = mNotification.extras;
 
@@ -85,12 +90,8 @@ public class MyListener extends NotificationListenerService {
         Message msg = new Message( title, text, subText, icon, mNotification.toString(), extras.toString(), packageName );
 
         NotificationTransmitter tx = new NotificationTransmitter();
-        try {
-            Log.e(MainActivity.TAG, "Sending bluetooth message");
-            tx.transmit(address, msg);
-        } catch (IOException ioe) {
-            Log.e(MainActivity.TAG, "Cannot transmit notification", ioe);
-        }
+        Log.e(MainActivity.TAG, "Sending bluetooth message");
+        tx.transmit(address, msg);
     }
 
     private String getIcon(String packageName, Integer id) {
