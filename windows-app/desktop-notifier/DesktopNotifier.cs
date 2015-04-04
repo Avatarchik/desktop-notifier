@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
+using System.Collections.Specialized;
 
 namespace desktop_notifier
 {
@@ -19,7 +20,7 @@ namespace desktop_notifier
         public DesktopNotifier()
         {
             InitializeComponent();
-            SetCheckBoxSilent(checkBoxEnableNotifications,true);
+            LoadSettings();
         }
 
         private void DesktopNotifier_Load(object sender, EventArgs e)
@@ -51,7 +52,22 @@ namespace desktop_notifier
 
         public void MessageReceived(Message message)
         {
-            GetDesktopNotifierInterface().ShowNotification(message);
+            if (Properties.Settings.Default.NotificationsEnabled)
+            {
+                if (!IsNotificationBlacklisted(message))
+                {
+                    GetDesktopNotifierInterface().ShowNotification(message,
+                                                                   Properties.Settings.Default.NotificationInterval);
+                }
+            }
+        }
+
+        private bool IsNotificationBlacklisted(Message message)
+        {
+            string appname = message.AppName;
+            if (appname == null)
+                return false;
+            return Properties.Settings.Default.NotificationBlacklistApps.Contains(appname);
         }
 
         private DesktopNotifierInterface GetDesktopNotifierInterface()
@@ -63,10 +79,13 @@ namespace desktop_notifier
         private void DesktopNotifier_FormClosed(object sender, FormClosedEventArgs e)
         {
             notifyIcon.Visible = false;
+            notifyIcon.Icon = null;
+            SaveSettings();
+            Stop();
         }
 
         private void checkBoxEnableNotifications_CheckedChanged(object sender, EventArgs e)
-        {
+        {            
             if (checkBoxEnableNotifications.Checked)
             {
                 Start();
@@ -75,13 +94,15 @@ namespace desktop_notifier
             {
                 Stop();
             }
+            SaveSettings();
         }
 
         private void Stop()
         {
+            SaveSettings();
             if (listeningThread == null) { return; }
             comm.Stop();
-            listeningThread.Abort();
+            listeningThread.Join();
             listeningThread = null;
         }
 
@@ -109,6 +130,71 @@ namespace desktop_notifier
             checkbox.CheckedChanged -= checkBoxEnableNotifications_CheckedChanged;
             checkbox.Checked = value;
             checkbox.CheckedChanged += checkBoxEnableNotifications_CheckedChanged;
+        }
+
+        private void SetNumericUpDownSilent(NumericUpDown updown, int value)
+        {
+            numericUpDownNotificationInterval.ValueChanged -= numericUpDownNotificationInterval_ValueChanged;
+            updown.Value = Convert.ToDecimal(value);
+            numericUpDownNotificationInterval.ValueChanged += numericUpDownNotificationInterval_ValueChanged;
+        }
+
+        private void buttonExit_Click(object sender, EventArgs e)
+        {
+            notifyIcon.Visible = false;
+            notifyIcon.Icon = null;
+            Stop();
+            Environment.Exit(0);
+        }
+
+        private void buttonTestNotification_Click(object sender, EventArgs e)
+        {
+            ShowTestNotification();
+        }
+
+        private void ShowTestNotification()
+        {
+            Message message = new Message(@"{text:""Sample text for notification"", title:""Sample title""}");
+            GetDesktopNotifierInterface().ShowNotification(message, Properties.Settings.Default.NotificationInterval);
+        }
+
+        private void LoadSettings()
+        {
+            SetCheckBoxSilent(checkBoxEnableNotifications, Properties.Settings.Default.NotificationsEnabled);
+            SetNumericUpDownSilent(numericUpDownNotificationInterval, Properties.Settings.Default.NotificationInterval);
+
+            dataGridViewBlacklist.Rows.Clear();
+            StringCollection blacklist = Properties.Settings.Default.NotificationBlacklistApps;
+            string[] array = new string[blacklist.Count];
+            blacklist.CopyTo(array, 0);
+            foreach(string name in array) {
+                dataGridViewBlacklist.Rows.Add(name);
+            }
+        }
+
+        private void SaveSettings()
+        {
+            Properties.Settings.Default.NotificationsEnabled = checkBoxEnableNotifications.Checked;
+            Properties.Settings.Default.NotificationInterval = Convert.ToInt32(numericUpDownNotificationInterval.Value);
+            Properties.Settings.Default.NotificationBlacklistApps.Clear();
+            List<string> names = new List<string>();
+            foreach (DataGridViewRow row in dataGridViewBlacklist.Rows)
+            {
+                if(row.Cells[0].Value != null)
+                    names.Add(row.Cells[0].Value.ToString());
+            }
+            Properties.Settings.Default.NotificationBlacklistApps.AddRange(names.ToArray());
+            Properties.Settings.Default.Save();
+        }
+
+        private void listViewBlacklist_AfterLabelEdit(object sender, LabelEditEventArgs e)
+        {
+            SaveSettings();
+        }
+
+        private void numericUpDownNotificationInterval_ValueChanged(object sender, EventArgs e)
+        {
+            SaveSettings();
         }
     }
 }

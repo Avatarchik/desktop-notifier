@@ -21,7 +21,7 @@ namespace desktop_notifier
             taskbarIcon.Icon = defaultIcon;
         }
 
-        public void ShowNotification(Message message)
+        public void ShowNotification(Message message, int timeout)
         {
             
             taskbarIcon.ToolTipText = "Desktop Notifier";

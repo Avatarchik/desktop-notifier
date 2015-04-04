@@ -15,13 +15,13 @@ namespace desktop_notifier
             this.notifyIcon = notifyIcon;
         }
 
-        public void ShowNotification(Message message)
+        public void ShowNotification(Message message, int timeout)
         {
             Console.WriteLine("Message shown: {0} : {1}", message.Title, message.Text);
             ShowIcon(message.Image);
             notifyIcon.Visible = false;
             notifyIcon.Visible = true;
-            notifyIcon.ShowBalloonTip(5000, message.Title, message.Text, ToolTipIcon.Info);
+            notifyIcon.ShowBalloonTip(timeout, message.Title, message.Text, ToolTipIcon.None);
         }
 
         private void ShowIcon(Image image)

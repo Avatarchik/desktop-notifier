@@ -7,6 +7,6 @@ namespace desktop_notifier
 {
     interface DesktopNotifierInterface
     {
-        void ShowNotification(Message message);
+        void ShowNotification(Message message, int timeout);
     }
 }

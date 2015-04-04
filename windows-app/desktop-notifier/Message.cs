@@ -27,6 +27,12 @@ namespace desktop_notifier
             set;
         }
 
+        public string AppName
+        {
+            get;
+            set;
+        }
+
         public Message(string json) 
         {
             var obj = JObject.Parse(json);
@@ -34,6 +40,8 @@ namespace desktop_notifier
                 Text = obj.SelectToken("text").ToString();
             if (obj.SelectToken("title") != null)
                 Title = obj.SelectToken("title").ToString();
+            if (obj.SelectToken("appname") != null)
+                AppName = obj.SelectToken("appname").ToString();
             if (obj.SelectToken("icon") != null)
                 Image = DecodeImage(obj.SelectToken("icon").ToString());
         }

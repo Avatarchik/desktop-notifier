@@ -6,6 +6,8 @@ using System.Text;
 using InTheHand.Net.Bluetooth;
 using InTheHand.Net.Sockets;
 using System.IO;
+using System.Threading;
+using System.Diagnostics;
 
 namespace desktop_notifier
 {
@@ -44,12 +46,14 @@ namespace desktop_notifier
                 if (listener.Pending())
                 {
                     Console.WriteLine("Got a new client");
-                    BluetoothClient client = listener.AcceptBluetoothClient();
-                    
-                    string message = ReadMessage(client.GetStream());
-                    Console.WriteLine("Message: " + message);
-
-                    SendMessage(message);
+                    using (BluetoothClient client = listener.AcceptBluetoothClient())
+                    {
+                        ReadMessageAsync(client);
+                    }
+                }
+                else
+                {
+                    Thread.Sleep(500);
                 }
             }
         }
@@ -69,14 +73,65 @@ namespace desktop_notifier
             Callback.Invoke(message);
         }
 
-        private string ReadMessage(Stream stream)
+        private void ReadMessageAsync(BluetoothClient client)
         {
-            string message = "";
-            using (StreamReader reader = new StreamReader(stream))
+            Thread t = new Thread(() => ReadMessage(client));
+            t.Start();
+            if (!t.Join(TimeSpan.FromSeconds(30)))
             {
-                message = reader.ReadLine();
+                t.Abort();
             }
-            return message;
+        }
+
+        private void ReadMessage(BluetoothClient client)
+        {
+            String message = "";
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            bool timedout = false;
+
+            using (StreamReader reader = new StreamReader(client.GetStream()))
+            {
+                while(true) 
+                {
+                    int available = reader.Peek();
+                    if (available >= 0)
+                    {
+                        char[] buffer = new char[available];
+                        int read = reader.Read(buffer, 0, available);
+                        if (read > 0)
+                        {
+                            string line = new string(buffer, 0, read);
+                            //Console.WriteLine(line);
+                            message += line;
+                        }
+
+                        if (message.Contains(":END_OF_MESSAGE:"))
+                            break;
+                    }
+                    else
+                    {
+                        Thread.Sleep(500);
+                    }
+
+                    // Did we wait too long while reading this stream?
+                    if (watch.Elapsed.Seconds > 15)
+                    {
+                        timedout = true;
+                        break;
+                    }
+                }
+            }
+
+            if (timedout)
+            {
+                Console.WriteLine("Timedout: " + watch.Elapsed + " " + message);
+            }
+            else
+            {
+                Console.WriteLine("Message received: " + message);
+                SendMessage(message.ToString().Trim());
+            }
         }
     }
 }
