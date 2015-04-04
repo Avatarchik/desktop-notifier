@@ -6,6 +6,12 @@
         android:summary="@string/pref_description_enable_notifications"
         android:defaultValue="true" />
 
+    <CheckBoxPreference
+        android:key="include_images"
+        android:title="@string/pref_title_include_images"
+        android:summary="@string/pref_description_include_images"
+        android:defaultValue="false" />
+
     <ListPreference
         android:key="desktop_address"
         android:title="@string/pref_title_desktop_address"

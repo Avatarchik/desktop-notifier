@@ -37,16 +37,17 @@ public class Message {
     public CharSequence details;
     public CharSequence icon;
     public CharSequence raw;
-    public CharSequence extra;
+    public CharSequence extra, appname;
 
     public Message(CharSequence title, CharSequence text, CharSequence details, CharSequence icon,
-                   CharSequence raw,   CharSequence extra) {
+                   CharSequence raw,   CharSequence extra, CharSequence appname) {
         this.title = title;
         this.text = text;
         this.details = details;
         this.icon = icon;
         this.raw = raw;
         this.extra = extra;
+        this.appname = appname;
     }
 
     public CharSequence toJSON() throws UnsupportedEncodingException {
@@ -58,6 +59,7 @@ public class Message {
             json.put("icon", String.valueOf(icon));
             json.put("raw", String.valueOf(raw));
             json.put("extra", String.valueOf(extra));
+            json.put("appname", String.valueOf(appname));
         } catch (JSONException je) {
             Log.wtf("DeskNote", je);
         }

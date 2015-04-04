@@ -9,4 +9,12 @@
 
     <string name="pref_title_desktop_address">Desktop name</string>
     <string name="pref_description_desktop_name">Select your desktop name</string>
+
+    <string name="pref_title_include_images">Images in notifications</string>
+    <string name="pref_description_include_images">Including images in notifications will
+        increase communication latency</string>
+
+
+
+
 </resources>

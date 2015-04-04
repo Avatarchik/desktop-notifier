@@ -70,9 +70,11 @@ public class MyListener extends NotificationListenerService {
         String subText = extras.getString(Notification.EXTRA_SUB_TEXT);
         Integer smallIconID = extras.getInt(Notification.EXTRA_SMALL_ICON);
         String icon = "null";
-        if(extras.getParcelable(Notification.EXTRA_LARGE_ICON) != null) {
-            Bitmap b = Bitmap.class.cast(extras.getParcelable(Notification.EXTRA_LARGE_ICON));
-            icon = bitmap2Base64(b);
+        if(pref.getBoolean("include_images", false)) {
+            if (extras.getParcelable(Notification.EXTRA_LARGE_ICON) != null) {
+                Bitmap b = Bitmap.class.cast(extras.getParcelable(Notification.EXTRA_LARGE_ICON));
+                icon = bitmap2Base64(b);
+            }
         }
 
         String smallIcon = getIcon(packageName, smallIconID);
@@ -80,7 +82,7 @@ public class MyListener extends NotificationListenerService {
 
         Log.e(MainActivity.TAG, "Got a new notification " + title + " " + mNotification.hashCode());
 
-        Message msg = new Message( title, text, subText, icon, mNotification.toString(), extras.toString() );
+        Message msg = new Message( title, text, subText, icon, mNotification.toString(), extras.toString(), packageName );
 
         NotificationTransmitter tx = new NotificationTransmitter();
         try {
