@@ -23,5 +23,7 @@ namespace desktop_notifier
     interface DesktopNotifierInterface
     {
         void ShowNotification(Message message, int timeout);
+        void Initialize(IntPtr hwnd, IntPtr hicon);
+        void CleanUp();
     }
 }

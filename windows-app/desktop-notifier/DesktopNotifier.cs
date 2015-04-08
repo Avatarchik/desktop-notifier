@@ -23,11 +23,130 @@ using System.Text;
 using System.Windows.Forms;
 using System.Threading;
 using System.Collections.Specialized;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace desktop_notifier
 {
     public partial class DesktopNotifier : Form
     {
+        #region Win32 API call
+        
+        // This code is sourced from http://stackoverflow.com/questions/26153810/get-the-applications-notifyicon-rectangle
+
+        public const Int32 WM_MYMESSAGE = 0x8000; //WM_APP
+        public const Int32 NOTIFYICON_VERSION_4 = 0x4;
+
+        public const Int32 NIIF_USER = 0x4;
+        public const Int32 NIIF_NONE = 0x0;
+        public const Int32 NIIF_INFO = 0x1;
+        public const Int32 NIIF_WARNING = 0x2;
+        public const Int32 NIIF_ERROR = 0x3;
+        public const Int32 NIIF_LARGE_ICON = 0x20;
+
+        public const Int32 NIN_BALLOONHIDE = 0x403;
+        public const Int32 NIN_BALLOONSHOW = 0x402;
+        public const Int32 NIN_BALLOONTIMEOUT = 0x404;
+        public const Int32 NIN_BALLOONUSERCLICK = 0x405;
+        public const Int32 NIN_KEYSELECT = 0x403;
+        public const Int32 NIN_SELECT = 0x400;
+        public const Int32 NIN_POPUPOPEN = 0x406;
+        public const Int32 NIN_POPUPCLOSE = 0x408;
+
+        public enum NotifyFlags
+        {
+            NIF_MESSAGE = 0x01, NIF_ICON = 0x02, NIF_TIP = 0x04, NIF_INFO = 0x10, NIF_STATE = 0x08,
+            NIF_GUID = 0x20, NIF_SHOWTIP = 0x80
+        }
+
+        public enum NotifyCommand { NIM_ADD = 0x0, NIM_DELETE = 0x2, NIM_MODIFY = 0x1, NIM_SETVERSION = 0x4 }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct NOTIFYICONDATA
+        {
+            public Int32 cbSize;
+            public IntPtr hWnd;
+            public Int32 uID;
+            public NotifyFlags uFlags;
+            public Int32 uCallbackMessage;
+            public IntPtr hIcon;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+            public String szTip;
+            public Int32 dwState;
+            public Int32 dwStateMask;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public String szInfo;
+            public Int32 uVersion;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
+            public String szInfoTitle;
+            public Int32 dwInfoFlags;
+            public Guid guidItem; //> IE 6
+            public IntPtr hBalloonIcon;
+        }
+
+        [DllImport("shell32.dll")]
+        public static extern System.Int32 Shell_NotifyIcon(NotifyCommand cmd, ref NOTIFYICONDATA data);
+
+        private void AddIcon()
+        {
+            NOTIFYICONDATA data = new NOTIFYICONDATA();
+
+            data.cbSize = Marshal.SizeOf(data);
+            data.hWnd = Handle;
+            data.guidItem = GetGuid();
+            data.hIcon = Icon.Handle;
+            data.szTip = "Desktop Notifier";
+
+            data.uCallbackMessage = WM_MYMESSAGE; //This is the message sent to our app
+
+            data.uFlags = NotifyFlags.NIF_ICON | NotifyFlags.NIF_GUID | NotifyFlags.NIF_MESSAGE | NotifyFlags.NIF_TIP |
+                          NotifyFlags.NIF_SHOWTIP;
+
+            Shell_NotifyIcon(NotifyCommand.NIM_ADD, ref data);
+
+            data.uVersion = NOTIFYICON_VERSION_4;
+            Shell_NotifyIcon(NotifyCommand.NIM_SETVERSION, ref data);
+        }
+
+        private static Guid GetGuid()
+        {
+            return Marshal.GetTypeLibGuidForAssembly(Assembly.GetExecutingAssembly());
+        }
+
+        private void DeleteIcon()
+        {
+            NOTIFYICONDATA data = new NOTIFYICONDATA();
+            data.cbSize = Marshal.SizeOf(data);
+            data.uFlags = NotifyFlags.NIF_GUID;
+            data.guidItem = GetGuid();
+
+            Shell_NotifyIcon(NotifyCommand.NIM_DELETE, ref data);
+        }
+
+        private void AddBalloon(Message message, int timeout)
+        {
+            NOTIFYICONDATA data = new NOTIFYICONDATA();
+
+            data.cbSize = Marshal.SizeOf(data);
+            data.guidItem = GetGuid();
+
+            data.dwInfoFlags = NIIF_USER;
+            data.hIcon = Icon.Handle;
+            data.hBalloonIcon = IntPtr.Zero;
+            if (message.Image != null)
+            {
+                data.hBalloonIcon = ((Bitmap)message.Image).GetHicon();
+                data.dwInfoFlags |= NIIF_LARGE_ICON;
+            }
+            data.szInfo = message.Text;
+            data.szInfoTitle = message.Title;
+
+            data.uFlags = NotifyFlags.NIF_INFO | NotifyFlags.NIF_SHOWTIP | NotifyFlags.NIF_GUID;
+
+            Console.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
+        }
+        #endregion
+
         public delegate void MessageReceivedEvent(Message message);
         private BluetoothComm comm = new BluetoothComm();
         private Thread listeningThread;
@@ -36,6 +155,7 @@ namespace desktop_notifier
         {
             InitializeComponent();
             LoadSettings();
+            AddIcon();
         }
 
         private void DesktopNotifier_Load(object sender, EventArgs e)
@@ -45,11 +165,6 @@ namespace desktop_notifier
 
         private void Start()
         {
-            //System.Threading.ThreadPool.QueueUserWorkItem(delegate
-            //{
-            //    StartInternal();
-            //}, null);
-
             if (listeningThread == null)
             {
                 listeningThread = new Thread(StartInternal);
@@ -71,10 +186,14 @@ namespace desktop_notifier
             {
                 if (!IsNotificationBlacklisted(message))
                 {
-                    GetDesktopNotifierInterface().ShowNotification(message,
-                                                                   Properties.Settings.Default.NotificationInterval);
+                    ShowNotification(message, Properties.Settings.Default.NotificationInterval);
                 }
             }
+        }
+
+        private void ShowNotification(Message message, int timeout)
+        {
+            AddBalloon(message, timeout);
         }
 
         private bool IsNotificationBlacklisted(Message message)
@@ -85,16 +204,9 @@ namespace desktop_notifier
             return Properties.Settings.Default.NotificationBlacklistApps.Contains(appname);
         }
 
-        private DesktopNotifierInterface GetDesktopNotifierInterface()
-        {
-            //return new FancyDesktopNotifier(Icon);
-            return new WindowsDefaultNotifier(notifyIcon);
-        }
-
         private void DesktopNotifier_FormClosed(object sender, FormClosedEventArgs e)
         {
-            notifyIcon.Visible = false;
-            notifyIcon.Icon = null;
+            DeleteIcon();
             SaveSettings();
             Stop();
         }
@@ -121,23 +233,10 @@ namespace desktop_notifier
             listeningThread = null;
         }
 
-        private void notifyIcon_BalloonTipClosed(object sender, EventArgs e)
-        {
-            notifyIcon.Icon = Icon;
-        }
-
         private void DesktopNotifier_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = true;
             Hide();
-        }
-
-        private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            if (Visible)
-                Hide();
-            else
-                Show();
         }
 
         private void SetCheckBoxSilent(CheckBox checkbox, Boolean value)
@@ -156,8 +255,7 @@ namespace desktop_notifier
 
         private void buttonExit_Click(object sender, EventArgs e)
         {
-            notifyIcon.Visible = false;
-            notifyIcon.Icon = null;
+            DeleteIcon();
             Stop();
             Environment.Exit(0);
         }
@@ -170,7 +268,7 @@ namespace desktop_notifier
         private void ShowTestNotification()
         {
             Message message = new Message(@"{text:""Sample text for notification"", title:""Sample title""}");
-            GetDesktopNotifierInterface().ShowNotification(message, Properties.Settings.Default.NotificationInterval);
+            ShowNotification(message, Properties.Settings.Default.NotificationInterval);
         }
 
         private void LoadSettings()
@@ -210,6 +308,35 @@ namespace desktop_notifier
         private void numericUpDownNotificationInterval_ValueChanged(object sender, EventArgs e)
         {
             SaveSettings();
+        }
+
+        protected override void WndProc(ref System.Windows.Forms.Message m)
+        {
+            if (m.Msg == WM_MYMESSAGE)
+            {
+                //(Int32)m.LParam & 0x0000FFFF get the low 2 bytes of LParam, we dont need the high ones. 
+                //(Int32)m.WParam & 0x0000FFFF is the X coordinate and 
+                //((Int32)m.WParam & 0xFFFF0000) >> 16 the Y
+                switch ((Int32)m.LParam & 0x0000FFFF)
+                {
+                    case NIN_SELECT:
+                        if (Visible)
+                        {
+                            Hide();
+                        }
+                        else
+                        {
+                            Show();
+                            Focus();
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            base.WndProc(ref m);
         }
     }
 }

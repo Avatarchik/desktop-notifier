@@ -47,5 +47,16 @@ namespace desktop_notifier
             notifyIcon.Icon = Icon.FromHandle(bitmap.GetHicon());
             Console.WriteLine("Icon shown");
         }
+
+        public void Initialize(IntPtr hwnd, IntPtr hicon)
+        {
+
+        }
+
+        public void CleanUp()
+        {
+            notifyIcon.Visible = false;
+            notifyIcon.Icon = null;
+        }
     }
 }

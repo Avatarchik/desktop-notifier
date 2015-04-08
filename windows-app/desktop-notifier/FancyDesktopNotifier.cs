@@ -58,5 +58,15 @@ namespace desktop_notifier
 
             //taskbarNotifier.Show(message.Title, message.Text, 1000, 10000, 1000);
         }
+
+        public void Initialize(IntPtr hwnd, IntPtr hicon)
+        {
+
+        }
+
+        public void CleanUp()
+        {
+
+        }
     }
 }

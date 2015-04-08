@@ -28,9 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DesktopNotifier));
-            this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.checkBoxEnableNotifications = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -45,14 +43,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNotificationInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewBlacklist)).BeginInit();
             this.SuspendLayout();
-            // 
-            // notifyIcon
-            // 
-            this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
-            this.notifyIcon.Text = "Desktop Notifier";
-            this.notifyIcon.Visible = true;
-            this.notifyIcon.BalloonTipClosed += new System.EventHandler(this.notifyIcon_BalloonTipClosed);
-            this.notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseDoubleClick);
             // 
             // checkBoxEnableNotifications
             // 
@@ -217,7 +207,6 @@
 
         #endregion
 
-        private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.CheckBox checkBoxEnableNotifications;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
