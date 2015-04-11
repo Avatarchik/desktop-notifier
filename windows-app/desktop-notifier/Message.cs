@@ -26,6 +26,9 @@ namespace desktop_notifier
 {
     public class Message
     {
+        public int Length { get; set; }
+        private Dictionary<string, string> extra;
+
         public string Title
         {
             get;
@@ -51,6 +54,9 @@ namespace desktop_notifier
 
         public Message(string json) 
         {
+            // How many kbs did we transmit? It is important to keep this number
+            // smaller to make the communication quicker
+            Length = json.Length / 1024;
             var obj = JObject.Parse(json);
             if(obj.SelectToken("text") != null)
                 Text = obj.SelectToken("text").ToString();
@@ -60,6 +66,26 @@ namespace desktop_notifier
                 AppName = obj.SelectToken("appname").ToString();
             if (obj.SelectToken("icon") != null)
                 Image = DecodeImage(obj.SelectToken("icon").ToString());
+
+            //extra = new Dictionary<string, string>();
+            extra = obj["extra"].ToObject<Dictionary<string,string>>();
+
+            if ("null".Equals(Text))
+            {
+                if (extra.ContainsKey("android.text"))
+                {
+                    Text = extra["android.text"];
+                }
+                    
+            }
+            if ("null".Equals(Title))
+            {
+                if (extra.ContainsKey("android.title"))
+                {
+                    Title = extra["android.title"];
+                }
+            }
+            
         }
 
         private System.Drawing.Image DecodeImage(string base64)

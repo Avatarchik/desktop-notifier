@@ -138,7 +138,7 @@ namespace desktop_notifier
                 data.hBalloonIcon = ((Bitmap)message.Image).GetHicon();
                 data.dwInfoFlags |= NIIF_LARGE_ICON;
             }
-            data.szInfo = message.Text;
+            data.szInfo = message.Text + " (" + message.Length + "k)";
             data.szInfoTitle = message.Title;
 
             data.uFlags = NotifyFlags.NIF_INFO | NotifyFlags.NIF_SHOWTIP | NotifyFlags.NIF_GUID;
@@ -320,15 +320,7 @@ namespace desktop_notifier
                 switch ((Int32)m.LParam & 0x0000FFFF)
                 {
                     case NIN_SELECT:
-                        if (Visible)
-                        {
-                            Hide();
-                        }
-                        else
-                        {
-                            Show();
-                            Focus();
-                        }
+                        ToggleWindowVisibility();
                         break;
 
                     default:
@@ -337,6 +329,20 @@ namespace desktop_notifier
             }
 
             base.WndProc(ref m);
+        }
+
+        private void ToggleWindowVisibility()
+        {
+            if (Visible)
+            {
+                Hide();
+            }
+            else
+            {
+                Show();
+                Focus();
+                BringToFront();
+            }
         }
     }
 }
