@@ -148,7 +148,7 @@ namespace desktop_notifier
         #endregion
 
         public delegate void MessageReceivedEvent(Message message);
-        private BluetoothComm comm = new BluetoothComm();
+        private BluetoothComm comm;
         private Thread listeningThread;
 
         public DesktopNotifier()
@@ -156,6 +156,8 @@ namespace desktop_notifier
             InitializeComponent();
             LoadSettings();
             AddIcon();
+
+            InitializeBluetooth();
         }
 
         private void DesktopNotifier_Load(object sender, EventArgs e)
@@ -172,6 +174,25 @@ namespace desktop_notifier
             }
             
             listeningThread.Start();
+        }
+
+        private void InitializeBluetooth()
+        {
+            Console.WriteLine("Initializing bluetooth");
+            while(comm == null)
+            {
+                Console.WriteLine("Waiting for bluetooth...");
+                try
+                {
+                    comm = new BluetoothComm();
+                }
+                catch (Exception)
+                {
+                    Console.Write(".");
+                    Thread.Sleep(1000);
+                }
+            }
+            Console.WriteLine("Done");
         }
 
         private void StartInternal()
