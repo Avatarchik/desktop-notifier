@@ -120,7 +120,7 @@ public class MyListener extends NotificationListenerService {
     private String bitmap2Base64(Bitmap b) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         //Bitmap gray = toGrayscale(b);
-        // Windows needs 
+        // Windows needs atleast 48x48 image, otherwise, notification is not shown
         Bitmap smaller = b.createScaledBitmap(b, 48, 48, false);
         // PNG is lossless. So, quality setting is unused
         smaller.compress(Bitmap.CompressFormat.PNG, 100, baos);
