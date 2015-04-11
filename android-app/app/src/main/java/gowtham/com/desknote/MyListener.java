@@ -44,7 +44,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class MyListener extends NotificationListenerService {
@@ -79,17 +81,21 @@ public class MyListener extends NotificationListenerService {
             if (extras.getParcelable(Notification.EXTRA_LARGE_ICON) != null) {
                 Bitmap b = Bitmap.class.cast(extras.getParcelable(Notification.EXTRA_LARGE_ICON));
                 icon = bitmap2Base64(b);
+            } else {
+                icon = getIcon(packageName, smallIconID);
             }
         }
 
-        String smallIcon = getIcon(packageName, smallIconID);
-
+        Map<String,String> extrasMap = new HashMap<String,String>();
+        for(String key : extras.keySet()) {
+            extrasMap.put(key, String.valueOf(extras.get(key)));
+        }
 
         Log.e(MainActivity.TAG, "Got a new notification " + title + " " + mNotification.hashCode());
 
-        Message msg = new Message( title, text, subText, icon, mNotification.toString(), extras.toString(), packageName );
-
+        Message msg = new Message( title, text, subText, icon, mNotification.toString(), extrasMap, packageName );
         NotificationTransmitter tx = new NotificationTransmitter();
+
         Log.e(MainActivity.TAG, "Sending bluetooth message");
         tx.transmit(address, msg);
     }
@@ -114,13 +120,15 @@ public class MyListener extends NotificationListenerService {
     private String bitmap2Base64(Bitmap b) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         //Bitmap gray = toGrayscale(b);
-        // Bitmap smaller = b.createScaledBitmap(b, 10, 10, false);
-        b.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+        // Windows needs 
+        Bitmap smaller = b.createScaledBitmap(b, 48, 48, false);
+        // PNG is lossless. So, quality setting is unused
+        smaller.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] buf = baos.toByteArray();
         return new String(Base64.encode(buf, Base64.NO_WRAP));
     }
 
-    public Bitmap toGrayscale(Bitmap bmpOriginal)
+    private Bitmap toGrayscale(Bitmap bmpOriginal)
     {
         int width, height;
         height = bmpOriginal.getHeight();

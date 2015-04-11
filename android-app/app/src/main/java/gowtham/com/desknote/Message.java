@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 /**
  * Created by Gowtham on 28-Mar-15.
@@ -37,10 +38,11 @@ public class Message {
     public CharSequence details;
     public CharSequence icon;
     public CharSequence raw;
-    public CharSequence extra, appname;
+    public CharSequence appname;
+    public Map<String,String> extra;
 
     public Message(CharSequence title, CharSequence text, CharSequence details, CharSequence icon,
-                   CharSequence raw,   CharSequence extra, CharSequence appname) {
+                   CharSequence raw,   Map<String,String> extra, CharSequence appname) {
         this.title = title;
         this.text = text;
         this.details = details;
@@ -58,7 +60,7 @@ public class Message {
             json.put("details", String.valueOf(details));
             json.put("icon", String.valueOf(icon));
             json.put("raw", String.valueOf(raw));
-            json.put("extra", String.valueOf(extra));
+            json.put("extra", new JSONObject(extra));
             json.put("appname", String.valueOf(appname));
         } catch (JSONException je) {
             Log.wtf("DeskNote", je);
