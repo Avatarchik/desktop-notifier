@@ -22,6 +22,7 @@ package gowtham.com.desknote;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -48,15 +49,14 @@ public class NotificationTransmitter {
         }
 
         for(String address : addresses) {
-            try {
-                transmit(address, message);
-            } catch (IOException e) {
-                // Ignore
-                Log.e(MainActivity.TAG, e.getMessage());
-            }
+            // Parallel execution is not working
+            new TransmitTask().executeOnExecutor (AsyncTask.SERIAL_EXECUTOR, address, message);
         }
     }
 
+    private void transmitAsync(String address, Message message) {
+
+    }
     private void transmit(String address, Message message) throws IOException {
         device = adapter.getRemoteDevice(address.toUpperCase());
         if( device == null ) {
@@ -64,6 +64,7 @@ public class NotificationTransmitter {
             return;
         }
 
+        Log.i(MainActivity.TAG, "Sending message to " + address);
         // Create a socket
         // socket = createRfcommSocket(device); // device.createRfcommSocketToServiceRecord(uuid);
         socket = device.createRfcommSocketToServiceRecord(uuid);
@@ -96,5 +97,20 @@ public class NotificationTransmitter {
             Log.e(MainActivity.TAG, "createRfcommSocket() failed", e);
         }
         return tmp;
+    }
+
+    private class TransmitTask extends AsyncTask<Object, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Object ...params) {
+            String address = params[0].toString();
+            Message message = (Message)params[1];
+            try {
+                transmit(address, message);
+            } catch (IOException e) {
+                Log.e(MainActivity.TAG, e.getMessage());
+            }
+            return null;
+        }
     }
 }
