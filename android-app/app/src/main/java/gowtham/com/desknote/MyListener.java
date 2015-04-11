@@ -18,9 +18,13 @@
 
 */
 package gowtham.com.desknote;
+import android.app.AlarmManager;
 import android.app.Notification;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -46,10 +50,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class MyListener extends NotificationListenerService {
+
+    private Collection<String> connectedDevices = Collections.synchronizedSet(new HashSet<String>());
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
@@ -59,15 +66,17 @@ public class MyListener extends NotificationListenerService {
         if( ! pref.getBoolean("send_notifications", false))
             return;
 
+        // Look for our device
+        Set<String> emptySet = new HashSet<String>();
+        Collection<String> addresses = pref.getStringSet("desktop_address", emptySet);
+        Log.i(MainActivity.TAG, "Connected devices " + connectedDevices);
+        Collection<String> connectedAddresses = getConnectedAddresses(addresses, connectedDevices);
+
         Notification mNotification=sbn.getNotification();
 
         // Can't do much if we get a null!
         if (mNotification==null)
             return;
-
-        // Look for our device
-        Set<String> emptySet = new HashSet<String>();
-        Collection<String> address = pref.getStringSet("desktop_address", emptySet);
 
         Bundle extras = mNotification.extras;
 
@@ -97,7 +106,14 @@ public class MyListener extends NotificationListenerService {
         NotificationTransmitter tx = new NotificationTransmitter();
 
         Log.e(MainActivity.TAG, "Sending bluetooth message");
-        tx.transmit(address, msg);
+        tx.transmit(connectedAddresses, msg);
+    }
+
+    private Collection<String> getConnectedAddresses(Collection<String> addresses, Collection<String> connectedDevices) {
+        Collection<String> connectedAddresses = new LinkedHashSet<String>(addresses);
+        connectedAddresses.retainAll(connectedDevices);
+
+        return connectedAddresses;
     }
 
     private String getIcon(String packageName, Integer id) {
@@ -148,5 +164,31 @@ public class MyListener extends NotificationListenerService {
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         // No implementation needed
+    }
+
+    private final BroadcastReceiver deviceConnectionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            if(BluetoothDevice.ACTION_FOUND.equals(action)) {
+                Log.i(MainActivity.TAG, "Device found " + device.getAddress());
+                connectedDevices.add(device.getAddress());
+            }
+            // ACL_DISCONNECTED is being fired even when the device is in range
+            if(BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+                //Log.i(MainActivity.TAG, "Device disconnected " + device.getAddress());
+                //connectedDevices.remove(device.getAddress());
+            }
+        }
+    };
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        IntentFilter filterDeviceFound = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        //IntentFilter filterDisconnect = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+
+        registerReceiver(deviceConnectionReceiver, filterDeviceFound);
+        //registerReceiver(deviceConnectionReceiver, filterDisconnect);
     }
 }

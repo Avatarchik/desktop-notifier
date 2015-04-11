@@ -54,9 +54,6 @@ public class NotificationTransmitter {
         }
     }
 
-    private void transmitAsync(String address, Message message) {
-
-    }
     private void transmit(String address, Message message) throws IOException {
         device = adapter.getRemoteDevice(address.toUpperCase());
         if( device == null ) {

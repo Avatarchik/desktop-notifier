@@ -19,6 +19,7 @@
 */
 package gowtham.com.desknote;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -37,6 +38,8 @@ public class MainActivity extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        startDiscovery();
     }
 
     @Override
@@ -72,5 +75,11 @@ public class MainActivity extends ActionBarActivity {
     protected void onPause() {
         super.onPause();
         unregisterReceiver(mReceiver);
+    }
+
+    private void startDiscovery() {
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        adapter.enable();
+        adapter.startDiscovery();
     }
 }
