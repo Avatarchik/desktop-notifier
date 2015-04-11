@@ -67,24 +67,28 @@ namespace desktop_notifier
             if (obj.SelectToken("icon") != null)
                 Image = DecodeImage(obj.SelectToken("icon").ToString());
 
-            //extra = new Dictionary<string, string>();
-            extra = obj["extra"].ToObject<Dictionary<string,string>>();
+            extra = new Dictionary<string, string>();
+            if (obj["extra"] != null)
+            {
+                extra = obj["extra"].ToObject<Dictionary<string, string>>();
 
-            if ("null".Equals(Text))
-            {
-                if (extra.ContainsKey("android.text"))
+                if ("null".Equals(Text))
                 {
-                    Text = extra["android.text"];
+                    if (extra.ContainsKey("android.text"))
+                    {
+                        Text = extra["android.text"];
+                    }
+
                 }
-                    
-            }
-            if ("null".Equals(Title))
-            {
-                if (extra.ContainsKey("android.title"))
+                if ("null".Equals(Title))
                 {
-                    Title = extra["android.title"];
+                    if (extra.ContainsKey("android.title"))
+                    {
+                        Title = extra["android.title"];
+                    }
                 }
             }
+            
             
         }
 

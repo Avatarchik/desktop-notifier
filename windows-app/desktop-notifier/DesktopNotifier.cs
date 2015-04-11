@@ -138,7 +138,7 @@ namespace desktop_notifier
                 data.hBalloonIcon = ((Bitmap)message.Image).GetHicon();
                 data.dwInfoFlags |= NIIF_LARGE_ICON;
             }
-            data.szInfo = message.Text + " (" + message.Length + "k)";
+            data.szInfo = message.Text + " (" + message.Length + "KB)";
             data.szInfoTitle = message.Title;
 
             data.uFlags = NotifyFlags.NIF_INFO | NotifyFlags.NIF_SHOWTIP | NotifyFlags.NIF_GUID;
