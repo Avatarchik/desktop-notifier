@@ -110,10 +110,12 @@ public class MyListener extends NotificationListenerService {
     }
 
     private Collection<String> getConnectedAddresses(Collection<String> addresses, Collection<String> connectedDevices) {
-        Collection<String> connectedAddresses = new LinkedHashSet<String>(addresses);
-        connectedAddresses.retainAll(connectedDevices);
+        return addresses;
 
-        return connectedAddresses;
+//        Collection<String> connectedAddresses = new LinkedHashSet<String>(addresses);
+//        connectedAddresses.retainAll(connectedDevices);
+//
+//        return connectedAddresses;
     }
 
     private String getIcon(String packageName, Integer id) {
