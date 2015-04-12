@@ -25,6 +25,7 @@ using System.Threading;
 using System.Collections.Specialized;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace desktop_notifier
 {
@@ -56,7 +57,7 @@ namespace desktop_notifier
         public enum NotifyFlags
         {
             NIF_MESSAGE = 0x01, NIF_ICON = 0x02, NIF_TIP = 0x04, NIF_INFO = 0x10, NIF_STATE = 0x08,
-            NIF_GUID = 0x20, NIF_SHOWTIP = 0x80
+            NIF_GUID = 0x20, NIF_SHOWTIP = 0x80, NIF_REALTIME = 0x40,
         }
 
         public enum NotifyCommand { NIM_ADD = 0x0, NIM_DELETE = 0x2, NIM_MODIFY = 0x1, NIM_SETVERSION = 0x4 }
@@ -93,32 +94,29 @@ namespace desktop_notifier
 
             data.cbSize = Marshal.SizeOf(data);
             data.hWnd = Handle;
-            data.guidItem = GetGuid();
+            data.uID = 0x01;
             data.hIcon = Icon.Handle;
             data.szTip = "Desktop Notifier";
 
             data.uCallbackMessage = WM_MYMESSAGE; //This is the message sent to our app
 
-            data.uFlags = NotifyFlags.NIF_ICON | NotifyFlags.NIF_GUID | NotifyFlags.NIF_MESSAGE | NotifyFlags.NIF_TIP |
-                          NotifyFlags.NIF_SHOWTIP;
+            data.uFlags = NotifyFlags.NIF_ICON | NotifyFlags.NIF_MESSAGE | NotifyFlags.NIF_TIP;
 
-            Shell_NotifyIcon(NotifyCommand.NIM_ADD, ref data);
 
             data.uVersion = NOTIFYICON_VERSION_4;
-            Shell_NotifyIcon(NotifyCommand.NIM_SETVERSION, ref data);
-        }
 
-        private static Guid GetGuid()
-        {
-            return Marshal.GetTypeLibGuidForAssembly(Assembly.GetExecutingAssembly());
+            Debug.WriteLine( Shell_NotifyIcon(NotifyCommand.NIM_ADD, ref data) );
+            
+            Debug.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_SETVERSION, ref data));
         }
 
         private void DeleteIcon()
         {
             NOTIFYICONDATA data = new NOTIFYICONDATA();
             data.cbSize = Marshal.SizeOf(data);
-            data.uFlags = NotifyFlags.NIF_GUID;
-            data.guidItem = GetGuid();
+            data.uID = 0x01;
+            data.hWnd = Handle;
+            data.hIcon = Icon.Handle;
 
             Shell_NotifyIcon(NotifyCommand.NIM_DELETE, ref data);
         }
@@ -128,8 +126,8 @@ namespace desktop_notifier
             NOTIFYICONDATA data = new NOTIFYICONDATA();
 
             data.cbSize = Marshal.SizeOf(data);
-            data.guidItem = GetGuid();
-
+            data.uID = 0x01;
+            data.hWnd = Handle;
             data.dwInfoFlags = NIIF_USER;
             data.hIcon = Icon.Handle;
             data.hBalloonIcon = IntPtr.Zero;
@@ -141,7 +139,7 @@ namespace desktop_notifier
             data.szInfo = message.Text + " (" + message.Length + "KB)";
             data.szInfoTitle = message.Title;
 
-            data.uFlags = NotifyFlags.NIF_INFO | NotifyFlags.NIF_SHOWTIP | NotifyFlags.NIF_GUID;
+            data.uFlags = NotifyFlags.NIF_INFO | NotifyFlags.NIF_SHOWTIP | NotifyFlags.NIF_REALTIME;;
 
             Console.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
         }
