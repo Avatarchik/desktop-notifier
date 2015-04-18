@@ -14,5 +14,5 @@ Current status - alpha
 
 - Send more data - like contact picture when receiving a phone call, email subject line text etc.
 - Figure out a way to display images in the windows app notification
-- Create a user installable chrome plugin
+- Create a user installable chrome plugin(deprecated)
 - Create a user installable desktop app
