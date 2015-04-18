@@ -130,6 +130,7 @@ namespace desktop_notifier
             data.hWnd = Handle;
             data.dwInfoFlags = NIIF_USER;
             data.hIcon = Icon.Handle;
+            data.uVersion = 10000; // uVersion doubles as timeout
             data.hBalloonIcon = IntPtr.Zero;
             if (message.Image != null)
             {
@@ -139,7 +140,7 @@ namespace desktop_notifier
             data.szInfo = message.Text + " (" + message.Length + "KB)";
             data.szInfoTitle = message.Title;
 
-            data.uFlags = NotifyFlags.NIF_INFO | NotifyFlags.NIF_SHOWTIP | NotifyFlags.NIF_REALTIME;;
+            data.uFlags = NotifyFlags.NIF_INFO | NotifyFlags.NIF_SHOWTIP | NotifyFlags.NIF_REALTIME;
 
             Console.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
         }
@@ -212,7 +213,7 @@ namespace desktop_notifier
 
         private void ShowNotification(Message message, int timeout)
         {
-            AddBalloon(message, timeout);
+            Invoke(new Action(() => AddBalloon(message, timeout)));
         }
 
         private bool IsNotificationBlacklisted(Message message)
