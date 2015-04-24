@@ -121,7 +121,7 @@ namespace desktop_notifier
             Shell_NotifyIcon(NotifyCommand.NIM_DELETE, ref data);
         }
 
-        private void AddBalloon(Message message, int timeout)
+        private void RemoveBalloon()
         {
             NOTIFYICONDATA data = new NOTIFYICONDATA();
 
@@ -130,7 +130,26 @@ namespace desktop_notifier
             data.hWnd = Handle;
             data.dwInfoFlags = NIIF_USER;
             data.hIcon = Icon.Handle;
-            data.uVersion = 10000; // uVersion doubles as timeout
+            data.hBalloonIcon = IntPtr.Zero;
+            data.szInfo = "";
+            data.szInfoTitle = "";
+
+            data.uFlags = NotifyFlags.NIF_INFO;
+
+            Console.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
+        }
+
+        private void AddBalloon(Message message, int timeout)
+        {
+            
+            NOTIFYICONDATA data = new NOTIFYICONDATA();
+
+            data.cbSize = Marshal.SizeOf(data);
+            data.uID = 0x01;
+            data.hWnd = Handle;
+            data.dwInfoFlags = NIIF_USER;
+            data.hIcon = Icon.Handle;
+            data.uVersion = timeout; // uVersion doubles as timeout
             data.hBalloonIcon = IntPtr.Zero;
             if (message.Image != null)
             {
@@ -141,6 +160,9 @@ namespace desktop_notifier
             data.szInfoTitle = message.Title;
 
             data.uFlags = NotifyFlags.NIF_INFO | NotifyFlags.NIF_SHOWTIP | NotifyFlags.NIF_REALTIME;
+
+            // Hide any previously displaying balloon notification
+            RemoveBalloon();
 
             Console.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
         }
@@ -213,6 +235,7 @@ namespace desktop_notifier
 
         private void ShowNotification(Message message, int timeout)
         {
+            // This needs to be done only from UI thread
             Invoke(new Action(() => AddBalloon(message, timeout)));
         }
 
