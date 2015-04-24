@@ -139,9 +139,8 @@ namespace desktop_notifier
             Console.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
         }
 
-        private void AddBalloon(Message message, int timeout)
+        private void AddBalloon(Message message)
         {
-            
             NOTIFYICONDATA data = new NOTIFYICONDATA();
 
             data.cbSize = Marshal.SizeOf(data);
@@ -149,7 +148,6 @@ namespace desktop_notifier
             data.hWnd = Handle;
             data.dwInfoFlags = NIIF_USER;
             data.hIcon = Icon.Handle;
-            data.uVersion = timeout; // uVersion doubles as timeout
             data.hBalloonIcon = IntPtr.Zero;
             if (message.Image != null)
             {
@@ -228,15 +226,15 @@ namespace desktop_notifier
             {
                 if (!IsNotificationBlacklisted(message))
                 {
-                    ShowNotification(message, Properties.Settings.Default.NotificationInterval);
+                    ShowNotification(message);
                 }
             }
         }
 
-        private void ShowNotification(Message message, int timeout)
+        private void ShowNotification(Message message)
         {
             // This needs to be done only from UI thread
-            Invoke(new Action(() => AddBalloon(message, timeout)));
+            Invoke(new Action(() => AddBalloon(message)));
         }
 
         private bool IsNotificationBlacklisted(Message message)
@@ -289,13 +287,6 @@ namespace desktop_notifier
             checkbox.CheckedChanged += checkBoxEnableNotifications_CheckedChanged;
         }
 
-        private void SetNumericUpDownSilent(NumericUpDown updown, int value)
-        {
-            numericUpDownNotificationInterval.ValueChanged -= numericUpDownNotificationInterval_ValueChanged;
-            updown.Value = Convert.ToDecimal(value);
-            numericUpDownNotificationInterval.ValueChanged += numericUpDownNotificationInterval_ValueChanged;
-        }
-
         private void buttonExit_Click(object sender, EventArgs e)
         {
             DeleteIcon();
@@ -311,13 +302,12 @@ namespace desktop_notifier
         private void ShowTestNotification()
         {
             Message message = new Message(@"{text:""Sample text for notification"", title:""Sample title""}");
-            ShowNotification(message, Properties.Settings.Default.NotificationInterval);
+            ShowNotification(message);
         }
 
         private void LoadSettings()
         {
             SetCheckBoxSilent(checkBoxEnableNotifications, Properties.Settings.Default.NotificationsEnabled);
-            SetNumericUpDownSilent(numericUpDownNotificationInterval, Properties.Settings.Default.NotificationInterval);
 
             dataGridViewBlacklist.Rows.Clear();
             StringCollection blacklist = Properties.Settings.Default.NotificationBlacklistApps;
@@ -331,7 +321,6 @@ namespace desktop_notifier
         private void SaveSettings()
         {
             Properties.Settings.Default.NotificationsEnabled = checkBoxEnableNotifications.Checked;
-            Properties.Settings.Default.NotificationInterval = Convert.ToInt32(numericUpDownNotificationInterval.Value);
             Properties.Settings.Default.NotificationBlacklistApps.Clear();
             List<string> names = new List<string>();
             foreach (DataGridViewRow row in dataGridViewBlacklist.Rows)

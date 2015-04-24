@@ -30,17 +30,14 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DesktopNotifier));
             this.checkBoxEnableNotifications = new System.Windows.Forms.CheckBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
-            this.numericUpDownNotificationInterval = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.buttonTestNotification = new System.Windows.Forms.Button();
             this.buttonExit = new System.Windows.Forms.Button();
             this.dataGridViewBlacklist = new System.Windows.Forms.DataGridView();
             this.AppName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNotificationInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewBlacklist)).BeginInit();
             this.SuspendLayout();
             // 
@@ -56,38 +53,25 @@
             this.checkBoxEnableNotifications.UseVisualStyleBackColor = true;
             this.checkBoxEnableNotifications.CheckedChanged += new System.EventHandler(this.checkBoxEnableNotifications_CheckedChanged);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label1.Location = new System.Drawing.Point(3, 34);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(144, 28);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Notification Timeout";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40.96516F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 59.03484F));
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label2, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDownNotificationInterval, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label2, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.checkBoxEnableNotifications, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.buttonTestNotification, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.buttonExit, 0, 3);
-            this.tableLayoutPanel1.Controls.Add(this.dataGridViewBlacklist, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.buttonTestNotification, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.buttonExit, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.dataGridViewBlacklist, 1, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 4;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowCount = 3;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(368, 253);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
@@ -95,36 +79,12 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(3, 62);
+            this.label2.Location = new System.Drawing.Point(3, 34);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(144, 151);
+            this.label2.Size = new System.Drawing.Size(144, 179);
             this.label2.TabIndex = 3;
             this.label2.Text = "Blacklist";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // numericUpDownNotificationInterval
-            // 
-            this.numericUpDownNotificationInterval.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDownNotificationInterval.Location = new System.Drawing.Point(153, 37);
-            this.numericUpDownNotificationInterval.Maximum = new decimal(new int[] {
-            600,
-            0,
-            0,
-            0});
-            this.numericUpDownNotificationInterval.Minimum = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
-            this.numericUpDownNotificationInterval.Name = "numericUpDownNotificationInterval";
-            this.numericUpDownNotificationInterval.Size = new System.Drawing.Size(212, 22);
-            this.numericUpDownNotificationInterval.TabIndex = 5;
-            this.numericUpDownNotificationInterval.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            this.numericUpDownNotificationInterval.ValueChanged += new System.EventHandler(this.numericUpDownNotificationInterval_ValueChanged);
             // 
             // label3
             // 
@@ -168,11 +128,11 @@
             this.dataGridViewBlacklist.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.AppName});
             this.dataGridViewBlacklist.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewBlacklist.Location = new System.Drawing.Point(153, 65);
+            this.dataGridViewBlacklist.Location = new System.Drawing.Point(153, 37);
             this.dataGridViewBlacklist.Name = "dataGridViewBlacklist";
             this.dataGridViewBlacklist.RowHeadersVisible = false;
             this.dataGridViewBlacklist.RowTemplate.Height = 24;
-            this.dataGridViewBlacklist.Size = new System.Drawing.Size(212, 145);
+            this.dataGridViewBlacklist.Size = new System.Drawing.Size(212, 173);
             this.dataGridViewBlacklist.TabIndex = 9;
             // 
             // AppName
@@ -199,7 +159,6 @@
             this.Load += new System.EventHandler(this.DesktopNotifier_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNotificationInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewBlacklist)).EndInit();
             this.ResumeLayout(false);
 
@@ -208,10 +167,8 @@
         #endregion
 
         private System.Windows.Forms.CheckBox checkBoxEnableNotifications;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.NumericUpDown numericUpDownNotificationInterval;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button buttonTestNotification;
         private System.Windows.Forms.Button buttonExit;
