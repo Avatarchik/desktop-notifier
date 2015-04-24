@@ -105,9 +105,9 @@ namespace desktop_notifier
 
             data.uVersion = NOTIFYICON_VERSION_4;
 
-            Debug.WriteLine( Shell_NotifyIcon(NotifyCommand.NIM_ADD, ref data) );
+            Trace.WriteLine( Shell_NotifyIcon(NotifyCommand.NIM_ADD, ref data) );
             
-            Debug.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_SETVERSION, ref data));
+            Trace.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_SETVERSION, ref data));
         }
 
         private void DeleteIcon()
@@ -136,7 +136,7 @@ namespace desktop_notifier
 
             data.uFlags = NotifyFlags.NIF_INFO;
 
-            Console.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
+            Trace.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
         }
 
         private void AddBalloon(Message message)
@@ -162,7 +162,7 @@ namespace desktop_notifier
             // Hide any previously displaying balloon notification
             RemoveBalloon();
 
-            Console.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
+            Trace.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
         }
         #endregion
 
@@ -197,10 +197,10 @@ namespace desktop_notifier
 
         private void InitializeBluetooth()
         {
-            Console.WriteLine("Initializing bluetooth");
+            Trace.WriteLine("Initializing bluetooth");
             while(comm == null)
             {
-                Console.WriteLine("Waiting for bluetooth...");
+                Trace.WriteLine("Waiting for bluetooth...");
                 try
                 {
                     comm = new BluetoothComm();
@@ -211,7 +211,7 @@ namespace desktop_notifier
                     Thread.Sleep(1000);
                 }
             }
-            Console.WriteLine("Done");
+            Trace.WriteLine("Done");
         }
 
         private void StartInternal()

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace desktop_notifier
 {
@@ -32,7 +33,7 @@ namespace desktop_notifier
 
         public void ShowNotification(Message message, int timeout)
         {
-            Console.WriteLine("Message shown: {0} : {1}", message.Title, message.Text);
+            Trace.TraceInformation("Message shown: {0} : {1}", message.Title, message.Text);
             ShowIcon(message.Image);
             notifyIcon.Visible = false;
             notifyIcon.Visible = true;
@@ -45,7 +46,7 @@ namespace desktop_notifier
                 return;
             Bitmap bitmap = (Bitmap)image;
             notifyIcon.Icon = Icon.FromHandle(bitmap.GetHicon());
-            Console.WriteLine("Icon shown");
+            Trace.WriteLine("Icon shown");
         }
 
         public void Initialize(IntPtr hwnd, IntPtr hicon)

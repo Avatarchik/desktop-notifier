@@ -47,20 +47,20 @@ namespace desktop_notifier
 
         public void Stop()
         {
-            Console.WriteLine("Stopping");
+            Trace.WriteLine("Stopping");
             run = false;
         }
 
         private void StartListening()
         {
-            Console.WriteLine("Listening");
+            Trace.WriteLine("Listening");
             listener.Start();
             run = true;
             while (run)
             {
                 if (listener.Pending())
                 {
-                    Console.WriteLine("Got a new client");
+                    Trace.WriteLine("Got a new client");
                     using (BluetoothClient client = listener.AcceptBluetoothClient())
                     {
                         ReadMessageAsync(client);
@@ -117,7 +117,7 @@ namespace desktop_notifier
                         if (read > 0)
                         {
                             string line = new string(buffer, 0, read);
-                            //Console.WriteLine(line);
+                            //Trace.WriteLine(line);
                             message += line;
                         }
 
@@ -140,11 +140,11 @@ namespace desktop_notifier
 
             if (timedout)
             {
-                Console.WriteLine("Timedout: " + watch.Elapsed + " " + message);
+                Trace.WriteLine("Timedout: " + watch.Elapsed + " " + message);
             }
             else
             {
-                Console.WriteLine("Message received: " + message);
+                Trace.WriteLine("Message received: " + message);
                 SendMessage(message.ToString().Trim());
             }
         }
