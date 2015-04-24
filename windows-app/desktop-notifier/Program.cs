@@ -17,20 +17,45 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using System.Threading;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace desktop_notifier
 {
     static class Program
     {
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new DesktopNotifier());
+            // We want a single instance of this app
+            bool createdNew = true;
+            using (Mutex mutex = new Mutex(true, "Desktop-Notifier", out createdNew))
+            {
+                if (createdNew)
+                {
+                    // If no other instance exists, create a new one
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    Application.Run(new DesktopNotifier());
+                }
+                else
+                {
+                    // If another instance exists, disaply that instance
+                    Process currentProcess = Process.GetCurrentProcess();
+                    Process otherProcess   = Process.GetProcessesByName(currentProcess.ProcessName)
+                                                    .Where(process => process.Id != currentProcess.Id)
+                                                    .First();
+                    SetForegroundWindow(otherProcess.MainWindowHandle);
+                }
+            }
         }
     }
 }
