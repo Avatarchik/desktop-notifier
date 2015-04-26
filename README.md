@@ -9,10 +9,10 @@ Current status - alpha
 - Implement bluetooth device selection dialog instead of entering desktop's MAC address
 - Implement a blacklist to skip pushing unwanted notifications (like keyboard selection etc.)
 - Create a user installable apk for android app
+- Send image in the notification - contact picture during an incoming phone call etc.
 
 #### Todo
 
-- Send more data - like contact picture when receiving a phone call, email subject line text etc.
-- Figure out a way to display images in the windows app notification
-- Create a user installable chrome plugin(deprecated)
+- Some notifications include text in an alternate form (email notification etc.). Figure out a way to capture this data
 - Create a user installable desktop app
+- Embed android app to windows app
