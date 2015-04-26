@@ -37,6 +37,9 @@
     <Reference Include="InTheHand.Net.Personal, Version=3.7.1102.0, Culture=neutral, PublicKeyToken=ea38caa273134499, processorArchitecture=MSIL">
       <HintPath>..\External\32feet_3.7\NET\InTheHand.Net.Personal.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\External\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\External\json\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -78,6 +81,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="app.config" />
+    <None Include="DesktopNotifier.log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

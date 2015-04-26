@@ -105,9 +105,15 @@ namespace desktop_notifier
 
             data.uVersion = NOTIFYICON_VERSION_4;
 
-            Trace.WriteLine( Shell_NotifyIcon(NotifyCommand.NIM_ADD, ref data) );
-            
-            Trace.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_SETVERSION, ref data));
+            if (Shell_NotifyIcon(NotifyCommand.NIM_ADD, ref data) != 1)
+            {
+                log.Error("Cannot add notification icon");
+            }
+
+            if (Shell_NotifyIcon(NotifyCommand.NIM_SETVERSION, ref data) != 1)
+            {
+                log.Error("Cannot set notification icon version");
+            }
         }
 
         private void DeleteIcon()
@@ -118,7 +124,10 @@ namespace desktop_notifier
             data.hWnd = Handle;
             data.hIcon = Icon.Handle;
 
-            Shell_NotifyIcon(NotifyCommand.NIM_DELETE, ref data);
+            if (Shell_NotifyIcon(NotifyCommand.NIM_DELETE, ref data) != 1)
+            {
+                log.Error("Cannot remove notification icon");
+            }
         }
 
         private void RemoveBalloon()
@@ -136,7 +145,10 @@ namespace desktop_notifier
 
             data.uFlags = NotifyFlags.NIF_INFO;
 
-            Trace.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
+            if (Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data) != 1)
+            {
+                log.Error("Cannot remove notification balloon");
+            }
         }
 
         private void AddBalloon(Message message)
@@ -162,13 +174,19 @@ namespace desktop_notifier
             // Hide any previously displaying balloon notification
             RemoveBalloon();
 
-            Trace.WriteLine(Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data));
+            if (Shell_NotifyIcon(NotifyCommand.NIM_MODIFY, ref data) != 1)
+            {
+                log.Error("Cannot display notification balloon");
+            }
         }
         #endregion
 
+        # region Fields
         public delegate void MessageReceivedEvent(Message message);
         private BluetoothComm comm;
         private Thread listeningThread;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        # endregion
 
         public DesktopNotifier()
         {
@@ -197,10 +215,10 @@ namespace desktop_notifier
 
         private void InitializeBluetooth()
         {
-            Trace.WriteLine("Initializing bluetooth");
+            log.Info("Initializing bluetooth");
             while(comm == null)
             {
-                Trace.WriteLine("Waiting for bluetooth...");
+                log.Info("Waiting for bluetooth...");
                 try
                 {
                     comm = new BluetoothComm();
@@ -211,7 +229,7 @@ namespace desktop_notifier
                     Thread.Sleep(1000);
                 }
             }
-            Trace.WriteLine("Done");
+            log.Info("Done");
         }
 
         private void StartInternal()
@@ -222,6 +240,8 @@ namespace desktop_notifier
 
         public void MessageReceived(Message message)
         {
+            log.InfoFormat("Received message: {0}", message.JSON);
+            log.InfoFormat("Message size: {0}K", message.Length);
             if (Properties.Settings.Default.NotificationsEnabled)
             {
                 if (!IsNotificationBlacklisted(message))
@@ -233,6 +253,7 @@ namespace desktop_notifier
 
         private void ShowNotification(Message message)
         {
+            log.InfoFormat("Showing notification");
             // This needs to be done only from UI thread
             Invoke(new Action(() => AddBalloon(message)));
         }

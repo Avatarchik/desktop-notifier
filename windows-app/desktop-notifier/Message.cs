@@ -29,31 +29,17 @@ namespace desktop_notifier
         public int Length { get; set; }
         private Dictionary<string, string> extra;
 
-        public string Title
-        {
-            get;
-            set;
-        }
-
-        public string Text
-        {
-            get;
-            set;
-        }
-        public Image Image
-        {
-            get;
-            set;
-        }
-
-        public string AppName
-        {
-            get;
-            set;
-        }
+        public string Title { get; set; }
+        public string Text { get; set; }
+        public string JSON { get; set; }
+        public Image Image { get; set; }
+        public string AppName { get; set; }
 
         public Message(string json) 
         {
+            // Our original message in json format
+            JSON = json;
+
             // How many kbs did we transmit? It is important to keep this number
             // smaller to make the communication quicker
             Length = json.Length / 1024;

@@ -33,6 +33,7 @@ namespace desktop_notifier
         private BluetoothListener listener;
         private static readonly Guid GUID = new Guid("00001101-0000-1000-8000-00805f9b34fb");
         private volatile bool run = false;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public BluetoothComm()
         {
@@ -47,20 +48,20 @@ namespace desktop_notifier
 
         public void Stop()
         {
-            Trace.WriteLine("Stopping");
+            log.Info("Stopping");
             run = false;
         }
 
         private void StartListening()
         {
-            Trace.WriteLine("Listening");
+            log.Info("Listening");
             listener.Start();
             run = true;
             while (run)
             {
                 if (listener.Pending())
                 {
-                    Trace.WriteLine("Got a new client");
+                    log.Info("Got a new client");
                     using (BluetoothClient client = listener.AcceptBluetoothClient())
                     {
                         ReadMessageAsync(client);
@@ -117,7 +118,7 @@ namespace desktop_notifier
                         if (read > 0)
                         {
                             string line = new string(buffer, 0, read);
-                            //Trace.WriteLine(line);
+                            //log.Info(line);
                             message += line;
                         }
 
@@ -140,11 +141,11 @@ namespace desktop_notifier
 
             if (timedout)
             {
-                Trace.WriteLine("Timedout: " + watch.Elapsed + " " + message);
+                log.InfoFormat("Timedout: {0} {1}", watch.Elapsed, message);
             }
             else
             {
-                Trace.WriteLine("Message received: " + message);
+                log.InfoFormat("{0} bytes message read in {1}s {2}ms", message.Length, watch.Elapsed.Seconds, watch.Elapsed.Milliseconds);
                 SendMessage(message.ToString().Trim());
             }
         }

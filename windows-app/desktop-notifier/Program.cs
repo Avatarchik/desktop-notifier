@@ -21,10 +21,15 @@ using System.Threading;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
+
+[assembly: log4net.Config.XmlConfigurator(Watch = true, ConfigFile="DesktopNotifier.log4net.config")]
+
 namespace desktop_notifier
 {
     static class Program
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -35,10 +40,25 @@ namespace desktop_notifier
         [STAThread]
         static void Main()
         {
+            try
+            {
+                StartApplication();
+            }
+            catch (Exception e)
+            {
+                log.Error("Application error", e);
+            }
+        }
+
+        private static void StartApplication()
+        {
+            log.Info("Application started");
+
             // We want a single instance of this app
             bool createdNew = true;
             using (Mutex mutex = new Mutex(true, "Desktop-Notifier", out createdNew))
             {
+                log.InfoFormat("Another instance running already? {0}", !createdNew);
                 if (createdNew)
                 {
                     // If no other instance exists, create a new one
@@ -50,9 +70,10 @@ namespace desktop_notifier
                 {
                     // If another instance exists, disaply that instance
                     Process currentProcess = Process.GetCurrentProcess();
-                    Process otherProcess   = Process.GetProcessesByName(currentProcess.ProcessName)
+                    Process otherProcess = Process.GetProcessesByName(currentProcess.ProcessName)
                                                     .Where(process => process.Id != currentProcess.Id)
                                                     .First();
+                    log.InfoFormat("Another instance pid: {0}", otherProcess.Id);
                     SetForegroundWindow(otherProcess.MainWindowHandle);
                 }
             }
