@@ -1,6 +1,6 @@
 # desktop-notifier
 
-Android app for pushing notifications to a desktop. The communication happens over bluetooth serial protocol. On the desktop, a native windows app and a chrome plugin are supported. Events sent from the phone are displayed in the desktop as a popup notification.
+Android app for pushing notifications to a desktop. The communication happens over bluetooth serial protocol. On the desktop, a native windows app displays events sent from the phone as popup notification.
 
 Current status - alpha
 
