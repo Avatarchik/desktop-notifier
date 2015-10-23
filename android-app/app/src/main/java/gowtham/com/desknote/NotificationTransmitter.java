@@ -61,7 +61,7 @@ public class NotificationTransmitter {
             return;
         }
 
-        Log.i(MainActivity.TAG, "Sending message to " + address);
+        Log.i(MainActivity.TAG, "Sending message to " + device.getName());
         // Create a socket
         // socket = createRfcommSocket(device); // device.createRfcommSocketToServiceRecord(uuid);
         socket = device.createRfcommSocketToServiceRecord(uuid);
